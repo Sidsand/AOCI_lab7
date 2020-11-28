@@ -16,9 +16,15 @@ namespace Лабораторная_2
 {
     public partial class Form1 : Form
     {
+        public VideoCapture capture;
+        CascadeClassifier face;
+        Mat image = new Mat();
+        Image<Bgr, byte> input;
+        Mat frame;
+
 
         private Func func = new Func();
-        
+
         public Form1()
         {
             InitializeComponent();
@@ -40,121 +46,94 @@ namespace Лабораторная_2
 
         private void button2_Click(object sender, EventArgs e)
         {
-            imageBox2.Image = func.Blue();
+            imageBox2.Image = func.Binarization();
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            imageBox2.Image = func.Green();
+            imageBox2.Image = func.Binarization();
+            for (int i = 0; i < func.rois.Count; i++)
+            {
+                int k = i + 1;
+                listBox2.Items.Add("Область " + k.ToString());
+            }
         }
+
+        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            imageBox2.Image = func.ROI(listBox2.SelectedIndex);
+            imageBox3.Image = func.ROIOut(listBox2.SelectedIndex);
+            label1.Text = func.Translate(func.ROIOut(listBox2.SelectedIndex), "eng");
+            //label1.Text = func.Translate(func.ROI(listBox2.SelectedIndex), "rus");
+        }
+
+
+
+
+
+
 
         private void button4_Click(object sender, EventArgs e)
         {
-            imageBox2.Image = func.Red();
+            //func.Web();
+            capture = new VideoCapture();
+            capture.ImageGrabbed += ProcessFrame;
+            capture.Start();
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-           
-            imageBox2.Image = func.Mono();
+            //func.loadFace();
+
+            face = new CascadeClassifier("D:\\AOIClab5\\haarcascade_frontalface_default.xml");
+
+            OpenFileDialog f = new OpenFileDialog();
+            f.ShowDialog();
+
+            frame = CvInvoke.Imread(f.FileName, ImreadModes.Unchanged);
+
+            imageBox2.Image = frame.Split()[3];
+
+
         }
 
-        private void button6_Click(object sender, EventArgs e)
+        public void ProcessFrame(object sender, EventArgs e)
         {
-            imageBox2.Image = func.Sepia();
-        }
+            capture.Retrieve(image);
 
-        private void trackBar1_Scroll(object sender, EventArgs e)
-        {
-            imageBox2.Image = func.Bridght(trackBar1.Value, trackBar2.Value);
-        }
+            input = image.ToImage<Bgr, byte>();
 
-        private void trackBar2_Scroll(object sender, EventArgs e)
-        {
-            imageBox2.Image = func.Bridght(trackBar1.Value, trackBar2.Value);
-        }
+            List<Rectangle> faces = new List<Rectangle>();
 
-        private void button10_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            var result = openFileDialog.ShowDialog(); // открытие диалога выбора файла
-            if (result == DialogResult.OK) // открытие выбранного файла
+            //Mat ugray = new Mat();
+            //CvInvoke.CvtColor(image, ugray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
+            //Rectangle[] facesDetected = face.DetectMultiScale(ugray, 1.1, 10, new Size(20, 20));
+            //faces.AddRange(facesDetected);
+
+            Image<Bgra, byte> res = input.Convert<Bgra, byte>();
+
+
+            using (Mat ugray = new Mat())
             {
-                string fileName = openFileDialog.FileName;
-                func.secondImg(fileName);
+                    CvInvoke.CvtColor(image, ugray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
+                    Rectangle[] facesDetected = face.DetectMultiScale(ugray, 1.1, 10, new Size(10, 10));
+                    faces.AddRange(facesDetected);
             }
-        }
 
-        private void button8_Click(object sender, EventArgs e)
-        {
-            imageBox2.Image = func.Colapse(trackBar3.Value);
-        }
+            foreach (Rectangle rect in faces)
+                input.Draw(rect, new Bgr(Color.Yellow), 2);
 
-        private void button7_Click(object sender, EventArgs e)
-        {
-            imageBox2.Image = func.AntiColapse(trackBar3.Value);
-        }
 
-        private void button9_Click(object sender, EventArgs e)
-        {
-            imageBox2.Image = func.What(trackBar3.Value);
-        }
+            foreach (Rectangle rect in faces) //для каждого лица
+            {
+                res.ROI = rect; //для области содержащей лицо
+                Image<Bgra, byte> small = frame.ToImage<Bgra, byte>().Resize(rect.Width, rect.Height, Inter.Nearest); //создание
+                                                                                                                      //копирование изображения small на изображение res с использованием маски копирования mask
+                CvInvoke.cvCopy(small, res, small.Split()[3]);
+                res.ROI = System.Drawing.Rectangle.Empty;
+            }
 
-        private void button11_Click(object sender, EventArgs e)
-        {
-            imageBox2.Image = func.Sharp();
-        }
-
-        private void button12_Click(object sender, EventArgs e)
-        {
-            imageBox2.Image = func.Embos();
-        }
-
-        private void button13_Click(object sender, EventArgs e)
-        {
-            imageBox2.Image = func.Grani();
-        }
-
-        private void button14_Click(object sender, EventArgs e)
-        {
-            imageBox2.Image = func.HSV(trackBar4.Value);
-
-        }
-
-        private void trackBar4_Scroll(object sender, EventArgs e)
-        {
-            imageBox2.Image = func.HSV(trackBar4.Value);
-        }
-
-        private void button15_Click(object sender, EventArgs e)
-        {
-            imageBox2.Image = func.Blur();
-        }
-
-        private void button16_Click(object sender, EventArgs e)
-        {
-
-            int f1 = Convert.ToInt32(textBox1.Text);
-            int f2 = Convert.ToInt32(textBox2.Text);
-            int f3 = Convert.ToInt32(textBox3.Text);
-            int f4 = Convert.ToInt32(textBox4.Text);
-            int f5 = Convert.ToInt32(textBox5.Text);
-            int f6 = Convert.ToInt32(textBox6.Text);
-            int f7 = Convert.ToInt32(textBox7.Text);
-            int f8 = Convert.ToInt32(textBox8.Text);
-            int f9 = Convert.ToInt32(textBox9.Text);
-
-            imageBox2.Image = func.Filter(f1, f2, f3, f4, f5, f6, f7, f8, f9);
-        }
-
-        private void button17_Click(object sender, EventArgs e)
-        {
-            imageBox2.Image = func.Aqwa(trackBar1.Value, trackBar2.Value, trackBar3.Value);
-        }
-
-        private void button18_Click(object sender, EventArgs e)
-        {
-            imageBox2.Image = func.cartoon(trackBar3.Value);
+           imageBox1.Image  = res;
         }
     }
 }
