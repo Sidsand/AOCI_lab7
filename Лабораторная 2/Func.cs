@@ -52,13 +52,6 @@ namespace Лабораторная_2
                     output.Draw(rect, new Bgr(Color.Blue), 1);
                 }
             }
-
-
-            //input.ROI = rect; //установка региона интереса
-            //Image<Bgr, byte> roiImg;
-            //roiImg = sourceImage.Clone(); //копирование участка изображения, содержащего текст
-            //sourceImage.ROI = System.Drawing.Rectangle.Empty;
-
             resultImage = output.Convert<Bgr, byte>();
 
             return resultImage;
@@ -96,72 +89,6 @@ namespace Лабораторная_2
             }
 
             return strBuilder.ToString();
-
-        }
-
-
-
-
-
-        public void Web()
-        {
-            // инициализация веб-камеры
-            capture = new VideoCapture();
-            capture.ImageGrabbed += ProcessFrame;
-            capture.Start();
-            //return capture;
-        }
-
-        public void ProcessFrame(object sender, EventArgs e)
-        {
-            capture.Retrieve(image);
-
-            input = image.ToImage<Bgr, byte>();
-
-            List<Rectangle> faces = new List<Rectangle>();
-
-                //Mat ugray = new Mat();
-                //CvInvoke.CvtColor(image, ugray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
-                //Rectangle[] facesDetected = face.DetectMultiScale(ugray, 1.1, 10, new Size(20, 20));
-                //faces.AddRange(facesDetected);
-
-            Image<Bgra, byte> res = input.Convert<Bgra, byte>();
-
-            using (CascadeClassifier face = new CascadeClassifier("D:\\AOIClab5\\haarcascade_frontalface_default.xml"))
-            {
-                using (Mat ugray = new Mat())
-                {
-                    CvInvoke.CvtColor(image, ugray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
-                    Rectangle[] facesDetected = face.DetectMultiScale(ugray, 1.1, 10, new Size(20, 20));
-                    faces.AddRange(facesDetected);
-                }
-            }
-            foreach (Rectangle rect in faces)
-                input.Draw(rect, new Bgr(Color.Yellow), 2);
-
-
-            foreach (Rectangle rect in faces) //для каждого лица
-                {
-                    res.ROI = rect; //для области содержащей лицо
-                    Image<Bgra, byte> small = frame.ToImage<Bgra, byte>().Resize(rect.Width, rect.Height, Inter.Nearest); //создание
-                                                                                                                          //копирование изображения small на изображение res с использованием маски копирования mask
-                    CvInvoke.cvCopy(small, res, small.Split()[3]);
-                    res.ROI = System.Drawing.Rectangle.Empty;
-                }
-
-               // capture = res;
-        }
-
-        public Mat loadFace()
-        {
-            face = new CascadeClassifier("D:\\AOIClab5\\haarcascade_frontalface_default.xml");
-
-            OpenFileDialog f = new OpenFileDialog();
-            f.ShowDialog();
-
-            frame = CvInvoke.Imread(f.FileName, ImreadModes.Unchanged);
-
-            return frame.Split()[3];
         }
     }
 }

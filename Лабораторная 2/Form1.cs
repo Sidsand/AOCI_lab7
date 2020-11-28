@@ -21,16 +21,13 @@ namespace Лабораторная_2
         Mat image = new Mat();
         Image<Bgr, byte> input;
         Mat frame;
-
-
+        
         private Func func = new Func();
 
         public Form1()
         {
             InitializeComponent();
         }
-
-       
         private void button1_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -64,18 +61,10 @@ namespace Лабораторная_2
             imageBox2.Image = func.ROI(listBox2.SelectedIndex);
             imageBox3.Image = func.ROIOut(listBox2.SelectedIndex);
             label1.Text = func.Translate(func.ROIOut(listBox2.SelectedIndex), "eng");
-            //label1.Text = func.Translate(func.ROI(listBox2.SelectedIndex), "rus");
         }
-
-
-
-
-
-
 
         private void button4_Click(object sender, EventArgs e)
         {
-            //func.Web();
             capture = new VideoCapture();
             capture.ImageGrabbed += ProcessFrame;
             capture.Start();
@@ -83,8 +72,6 @@ namespace Лабораторная_2
 
         private void button5_Click(object sender, EventArgs e)
         {
-            //func.loadFace();
-
             face = new CascadeClassifier("D:\\AOIClab5\\haarcascade_frontalface_default.xml");
 
             OpenFileDialog f = new OpenFileDialog();
@@ -93,8 +80,6 @@ namespace Лабораторная_2
             frame = CvInvoke.Imread(f.FileName, ImreadModes.Unchanged);
 
             imageBox2.Image = frame.Split()[3];
-
-
         }
 
         public void ProcessFrame(object sender, EventArgs e)
@@ -104,15 +89,9 @@ namespace Лабораторная_2
             input = image.ToImage<Bgr, byte>();
 
             List<Rectangle> faces = new List<Rectangle>();
-
-            //Mat ugray = new Mat();
-            //CvInvoke.CvtColor(image, ugray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
-            //Rectangle[] facesDetected = face.DetectMultiScale(ugray, 1.1, 10, new Size(20, 20));
-            //faces.AddRange(facesDetected);
-
+            
             Image<Bgra, byte> res = input.Convert<Bgra, byte>();
-
-
+            
             using (Mat ugray = new Mat())
             {
                     CvInvoke.CvtColor(image, ugray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);

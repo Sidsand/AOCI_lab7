@@ -92,9 +92,9 @@
             // 
             // imageBox3
             // 
-            this.imageBox3.Location = new System.Drawing.Point(876, 506);
+            this.imageBox3.Location = new System.Drawing.Point(739, 506);
             this.imageBox3.Name = "imageBox3";
-            this.imageBox3.Size = new System.Drawing.Size(418, 69);
+            this.imageBox3.Size = new System.Drawing.Size(555, 69);
             this.imageBox3.TabIndex = 2;
             this.imageBox3.TabStop = false;
             // 
